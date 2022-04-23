@@ -4,8 +4,9 @@ from flask_cors import CORS
 import sys
 
 app = Flask(__name__)
-#app.config["DEBUG"] = True
 CORS(app)
+#app.config["DEBUG"] = True
+#cors=CORS(app,resources={r'*':{'origins':'*'}})
 
 @app.route('/<string:prg>', methods=['GET'])
 def home(prg):
@@ -197,5 +198,3 @@ def home(prg):
     final=' '.join(map(str, coutputcode))
     print(theprg,file=sys.stderr)
     return jsonify(data=final)
-
-
