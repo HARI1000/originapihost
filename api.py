@@ -1,10 +1,11 @@
 from http.client import ImproperConnectionState
 from flask import Flask,jsonify,request
+from flask_cors import CORS
 import sys
 
 app = Flask(__name__)
 #app.config["DEBUG"] = True
-
+CORS(app)
 
 @app.route('/<string:prg>', methods=['GET'])
 def home(prg):
