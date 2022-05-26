@@ -414,4 +414,4 @@ def home(prg):
     final=' '.join(map(str, forfinal))
     print("*",theprg,file=sys.stderr)
     return jsonify(result={"status":200},data=final)
-app.run()
+
