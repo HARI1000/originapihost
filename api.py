@@ -10,8 +10,9 @@ CORS(app)
 
 @app.route('/<string:prg>', methods=['GET'])
 def home(prg):
-    theprg=prg
-    print(theprg)
+    theprg=prg.strip()
+    print(theprg.split('$'))
+    print('#',theprg)
     global coutputcode
     global bracescount
     global pre_space_count
@@ -186,12 +187,15 @@ def home(prg):
         expressionsplit = linecode.split("=")
         variables = expressionsplit[0].split(",")
         declarations = expressionsplit[1].split(",")
+        print("exp",variables,declarations)
         
         for i in range(len(variables)):
             declaration = variables[i].strip()
             if('+' not in declarations[i] and '-' not in declarations[i] and '*' not in declarations[i] and '/' not in declarations[i] and '%' not in declarations[i]):
+               # print(variables1,"in exp")
                 if ("." not in declarations[i] and '''"''' not in declarations[i]):
                     if(variables[i].strip() not in intbox):
+                        print("int",variables[i])
                         intbox.append(declaration)
                 elif ("." in declarations[i] and '''"''' not in declarations[i]):
                     if(variables[i].strip() not in floatbox):
@@ -207,6 +211,7 @@ def home(prg):
             else:
                 variables1 = []
                 variables1.append(declarations[i])
+                
                 for j in operators:
                     for k in range(len(variables1)):
                         if(j in variables1[k]):
@@ -227,7 +232,7 @@ def home(prg):
                         declaration += "[100]"
                         stringbox.append(declaration)
                     linecode = variables[i].strip() + "[100] = " + declarations[i].strip()
-            coutputcode.append(linecode)
+        coutputcode.append(linecode)
 
 
     #Control Statements
@@ -294,18 +299,17 @@ def home(prg):
     intbox = []
     floatbox = []
     stringbox = []
-    pyinputcode =theprg.split()
+    pyinputcode =theprg.split('$')
     pre_space_count = 0
-    bracescount = 2
+    bracescount = 1
     coutputcode = ['#include<stdio.h>', '#include<conio.h>', '#include<stdlib.h>', 'void main()', '{']
 
 
     # Getting Multi-line inputs
    
-
     #Takes each line in the Intput
     for linecode in pyinputcode:
-        
+        print(linecode)
         #Automatic Curly Braces Function
         curr_space_count = 0
         for spaces in linecode:
@@ -314,6 +318,7 @@ def home(prg):
             elif(spaces == ' ' or spaces == '\t'):
                 curr_space_count +=1
         if(pre_space_count > curr_space_count):
+            print(".")
             coutputcode.append('}')
             bracescount += 1
         elif(pre_space_count < curr_space_count):
@@ -348,62 +353,65 @@ def home(prg):
         else:
             equals = linecode.find("=")
             if ("=" in linecode and linecode[equals - 1] not in operators):
+                print("$")
                 expressionsfunction(linecode)
             else:
                 coutputcode.append(linecode)
 
-        #Function for Initial Variable Declaration
-        mainposition = coutputcode.index("void main()")
+    #Function for Initial Variable Declaration
+    mainposition = coutputcode.index("void main()")
 
+    if(len(intbox) != 0):
+        coutputcode.insert(mainposition + 2,"int ")
+        for i in range(0,len(intbox)):
+            coutputcode[mainposition + 2] += intbox[i]
+            if(i != len(intbox)-1):
+                coutputcode[mainposition + 2] += ","
+
+    if(len(floatbox) != 0):
         if(len(intbox) != 0):
-            coutputcode.insert(mainposition + 2,"int ")
-            for i in range(0,len(intbox)):
-                coutputcode[mainposition + 2] += intbox[i]
-                if(i != len(intbox)-1):
-                    coutputcode[mainposition + 2] += ","
+            j = 3
+        else:
+            j = 2
+        coutputcode.insert(mainposition + j,"float ")
+        for i in range(0,len(floatbox)):
+            coutputcode[mainposition + j] += floatbox[i]
+            if(i != len(floatbox)-1):
+                coutputcode[mainposition + j] += ","
 
-        if(len(floatbox) != 0):
-            if(len(intbox) != 0):
-                j = 3
-            else:
-                j = 2
-            coutputcode.insert(mainposition + j,"float ")
-            for i in range(0,len(floatbox)):
-                coutputcode[mainposition + j] += floatbox[i]
-                if(i != len(floatbox)-1):
-                    coutputcode[mainposition + j] += ","
+    if(len(stringbox) != 0):
+        if(len(intbox) != 0 and len(floatbox) != 0):
+            j = 4
+        elif(len(intbox) !=0 and len(floatbox) == 0):
+            j = 3
+        elif(len(intbox) == 0 and len(floatbox) != 0):
+            j = 3
+        else:
+            j = 2
+        coutputcode.insert(mainposition + j,"char ")
+        for i in range(0,len(stringbox)):
+            coutputcode[mainposition + j] += stringbox[i]
+            if(i != len(stringbox)-1):
+                coutputcode[mainposition + j] += ","
 
-        if(len(stringbox) != 0):
-            if(len(intbox) != 0 and len(floatbox) != 0):
-                j = 4
-            elif(len(intbox) !=0 and len(floatbox) == 0):
-                j = 3
-            elif(len(intbox) == 0 and len(floatbox) != 0):
-                j = 3
-            else:
-                j = 2
-            coutputcode.insert(mainposition + j,"char ")
-            for i in range(0,len(stringbox)):
-                coutputcode[mainposition + j] += stringbox[i]
-                if(i != len(stringbox)-1):
-                    coutputcode[mainposition + j] += ","
-
-        # Appending the last Closing Curly Brace for main() function
-        if(bracescount % 2 == 1):
-            coutputcode.append('}')
+    # Appending the last Closing Curly Brace for main() function
+    coutputcode.append('}')
+    bracescount += 1
+    if(bracescount % 2 == 1):
         coutputcode.append('}')
+    
+    print("***",coutputcode)
+    # Printing the Output
+    for linecode1 in coutputcode:
+        if (linecode1.startswith('#include') or linecode1.startswith('void') or linecode1.startswith('{') or linecode1.startswith('}') or linecode1.strip().startswith("for(")):
+            forfinal.append(linecode1)
+        elif (linecode1.startswith('//') or linecode1.strip().startswith("if(") or linecode1.strip().startswith("if (") or linecode1.strip().startswith("else") or linecode1.strip().startswith("while")):
+            forfinal.append(linecode1)
+        else:
+            forfinal.append(linecode1 + ";")
 
-        # Printing the Output
-        for linecode1 in coutputcode:
-            if (linecode1.startswith('#include') or linecode1.startswith('void') or linecode1.startswith('{') or linecode1.startswith('}') or linecode1.strip().startswith("for(")):
-                forfinal.append(linecode1)
-            elif (linecode1.startswith('//') or linecode1.strip().startswith("if(") or linecode1.strip().startswith("if (") or linecode1.strip().startswith("else") or linecode1.strip().startswith("while")):
-                forfinal.append(linecode1)
-            else:
-                forfinal.append(linecode1 + ";")
-    
-    
+    print("hi")
     final=' '.join(map(str, forfinal))
-    #print("**",forfinal)
-    print(theprg,file=sys.stderr)
-    return jsonify(data=final)
+    print("*",theprg,file=sys.stderr)
+    return jsonify(result={"status":200},data=final)
+app.run()
