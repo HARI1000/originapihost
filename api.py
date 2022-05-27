@@ -302,7 +302,7 @@ def home(prg):
     pyinputcode =theprg.split('$')
     pre_space_count = 0
     bracescount = 1
-    coutputcode = ['#include<stdio.h>', '#include<conio.h>', '#include<stdlib.h>', 'void main()', '{']
+    coutputcode = ['#include<stdio.h>', '#include<conio.h>', '#include<stdlib.h>', 'void main()', '{~']
 
 
     # Getting Multi-line inputs
@@ -319,10 +319,10 @@ def home(prg):
                 curr_space_count +=1
         if(pre_space_count > curr_space_count):
             print(".")
-            coutputcode.append('}')
+            coutputcode.append('}~')
             bracescount += 1
         elif(pre_space_count < curr_space_count):
-            coutputcode.append('{')
+            coutputcode.append('{~')
             bracescount += 1
         pre_space_count = curr_space_count
 
@@ -395,10 +395,10 @@ def home(prg):
                 coutputcode[mainposition + j] += ","
 
     # Appending the last Closing Curly Brace for main() function
-    coutputcode.append('}')
+    coutputcode.append('}~')
     bracescount += 1
     if(bracescount % 2 == 1):
-        coutputcode.append('}')
+        coutputcode.append('}~')
     
     print("***",coutputcode)
     # Printing the Output
@@ -408,7 +408,7 @@ def home(prg):
         elif (linecode1.startswith('//') or linecode1.strip().startswith("if(") or linecode1.strip().startswith("if (") or linecode1.strip().startswith("else") or linecode1.strip().startswith("while")):
             forfinal.append(linecode1)
         else:
-            forfinal.append(linecode1 + ";")
+            forfinal.append(linecode1 + ";"+"~")
 
     print("hi")
     final=' '.join(map(str, forfinal))
